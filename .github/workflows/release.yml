@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v1.1.0)"
+        required: true
 
 jobs:
   release:
@@ -30,11 +35,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Resolve tag name
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "TAG=${{ github.event.inputs.tag }}" >> "$GITHUB_ENV"
+          else
+            echo "TAG=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          fi
+
       - name: Create zip archive
         run: |
-          TAG=${GITHUB_REF_NAME}
           ZIP="icy-veins-quicklinks-${TAG}.zip"
-          # Include everything needed to install the extension locally
           zip -r "$ZIP" \
             assets \
             src \
@@ -49,9 +60,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.ref_name }}
+          tag_name: ${{ env.TAG }}
+          name: ${{ env.TAG }}
           body: |
-            ## Icy Veins Quicklinks ${{ github.ref_name }}
+            ## Icy Veins Quicklinks ${{ env.TAG }}
 
             A Raycast extension for instantly navigating to Icy Veins WoW class/spec guides.
 
