@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Create zip archive
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          ZIP="icy-veins-quicklinks-${TAG}.zip"
+          # Include everything needed to install the extension locally
+          zip -r "$ZIP" \
+            assets \
+            src \
+            package.json \
+            package-lock.json \
+            tsconfig.json \
+            raycast-env.d.ts \
+            README.md \
+            --exclude "*.test.*"
+          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body: |
+            ## Icy Veins Quicklinks ${{ github.ref_name }}
+
+            A Raycast extension for instantly navigating to Icy Veins WoW class/spec guides.
+
+            ### Installation
+            1. Download the zip below
+            2. Extract it
+            3. Open Raycast → Extensions → `+` → **Import Extension**
+            4. Select the extracted folder
+          files: ${{ env.ZIP }}
+          generate_release_notes: true
