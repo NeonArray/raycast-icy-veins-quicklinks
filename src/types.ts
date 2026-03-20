@@ -1,0 +1,58 @@
+export type Mode = "pve" | "pvp";
+
+export interface SpecEntry {
+  /** URL slug, e.g. "shadow-priest" */
+  slug: string;
+  /** PvE role segment used in PvE guide URLs, e.g. "dps" | "healer" | "tank" */
+  pveRole: string;
+  /** All accepted input tokens that map to this spec (lowercase) */
+  aliases: string[];
+}
+
+export interface PageEntry {
+  /** URL suffix appended after the base spec+mode segment */
+  urlSuffix: string;
+  /** All accepted input tokens for this page (lowercase) */
+  aliases: string[];
+  /** When true the URL is built differently (no mode segment) */
+  special?: boolean;
+}
+
+export interface PageMap {
+  pve: PageEntry[];
+  pvp: PageEntry[];
+  /** Pages that apply regardless of mode (e.g. resources) */
+  any: PageEntry[];
+}
+
+export interface ParsedInput {
+  spec: SpecEntry;
+  mode: Mode;
+  page: PageEntry;
+}
+
+export interface ParseError {
+  kind: "unknown-spec" | "unknown-page";
+  token: string;
+}
+
+export type ParseResult =
+  | { ok: true; value: ParsedInput }
+  | { ok: false; error: ParseError };
+
+export interface Suggestion {
+  /** Stable React key: "{slug}-{mode}-{urlSuffix}" */
+  id: string;
+  /** Display title, e.g. "Shadow Priest · Gear" */
+  title: string;
+  /** Shortest query the user could type, e.g. "sp pve gear" */
+  subtitle: string;
+  /** Fully resolved Icy Veins URL */
+  url: string;
+  /** Mode this suggestion belongs to (used for List.Section grouping) */
+  mode: Mode;
+  /** Spec slug (used for filtering/grouping) */
+  specSlug: string;
+  /** Full URL to the spec icon image */
+  icon: string;
+}
