@@ -5,16 +5,16 @@ import type { Suggestion } from "../types";
 const BASE = "https://www.icy-veins.com/wow";
 
 // ---------------------------------------------------------------------------
-// Empty query — 80 items (40 specs × 2 modes × guide page each)
+// Empty query — 74 items (34 non-tank specs × 2 modes + 6 tank specs × 1 mode, guide page each)
 // ---------------------------------------------------------------------------
 
 describe("getSuggestions()", () => {
-  it("empty string returns 80 suggestions (40 specs × 2 modes × guide page each)", () => {
-    expect(getSuggestions("").length).toBe(80);
+  it("empty string returns 74 suggestions (34 non-tank specs × 2 modes + 6 tank specs × 1 mode)", () => {
+    expect(getSuggestions("").length).toBe(74);
   });
 
-  it("whitespace-only query returns 80 suggestions", () => {
-    expect(getSuggestions("   ").length).toBe(80);
+  it("whitespace-only query returns 74 suggestions", () => {
+    expect(getSuggestions("   ").length).toBe(74);
   });
 
   it("each suggestion has a unique id", () => {
@@ -89,8 +89,8 @@ describe("getSuggestions()", () => {
     }
   });
 
-  it('"bdk" triggers exact alias match (Phase A) returning all 20 pages', () => {
-    expect(getSuggestions("bdk").length).toBe(20);
+  it('"bdk" triggers exact alias match (Phase A) returning all PVE pages (tank spec, no PVP)', () => {
+    expect(getSuggestions("bdk").length).toBe(11);
   });
 
   it('"blood dk" returns suggestions only for blood-death-knight', () => {
@@ -311,11 +311,11 @@ describe("getSuggestions()", () => {
       expect(s.subtitle).toMatch(/^sp /);
     }
 
-    // blood-death-knight shortest alias is "bdk" → guide subtitles are "bdk pve" / "bdk pvp"
+    // blood-death-knight is a tank spec — only PVE guide, no PVP
     const bdkGuides = results.filter(
       (s: Suggestion) => s.specSlug === "blood-death-knight",
     );
-    expect(bdkGuides).toHaveLength(2);
+    expect(bdkGuides).toHaveLength(1);
     for (const s of bdkGuides) {
       expect(s.subtitle).toMatch(/^bdk /);
     }
