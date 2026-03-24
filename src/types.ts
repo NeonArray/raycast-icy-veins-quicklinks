@@ -18,6 +18,8 @@ export interface SpecEntry {
   pveRole: string;
   /** All accepted input tokens that map to this spec (lowercase) */
   aliases: string[];
+  /** Per-spec overrides for page urlSuffix values, e.g. hunter pet talents */
+  urlSuffixOverrides?: Record<string, string>;
 }
 
 export interface PageEntry {
