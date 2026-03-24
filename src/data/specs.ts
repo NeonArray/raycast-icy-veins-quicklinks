@@ -75,16 +75,19 @@ export const specs: SpecEntry[] = [
     slug: "beast-mastery-hunter",
     pveRole: "dps",
     aliases: ["beast mastery hunter", "beast mastery", "bm hunter", "bm"],
+    urlSuffixOverrides: { "spec-builds-talents": "spec-builds-pet-talents" },
   },
   {
     slug: "marksmanship-hunter",
     pveRole: "dps",
     aliases: ["marksmanship hunter", "marksmanship", "mm hunter", "mm"],
+    urlSuffixOverrides: { "spec-builds-talents": "spec-builds-pet-talents" },
   },
   {
     slug: "survival-hunter",
     pveRole: "dps",
     aliases: ["survival hunter", "survival", "surv"],
+    urlSuffixOverrides: { "spec-builds-talents": "spec-builds-pet-talents" },
   },
   // Mage
   {
