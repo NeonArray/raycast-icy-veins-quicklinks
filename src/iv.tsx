@@ -166,7 +166,7 @@ function renderGrid(
         <Grid.Section
           title={`${getShortestSpecAlias(state.spec).toUpperCase()} ${state.mode.toUpperCase()}`}
           subtitle={`${state.items.length}`}
-          columns={4}
+          columns={5}
         >
           {state.items.map((page) => (
             <PageItem
@@ -188,7 +188,7 @@ function renderGrid(
           key="pve"
           title="PvE"
           subtitle={`${pveSuggestions.length}`}
-          columns={4}
+          columns={5}
         >
           {pveSuggestions.map((suggestion) => (
             <SuggestionItem key={suggestion.id} suggestion={suggestion} />
@@ -198,7 +198,7 @@ function renderGrid(
           key="pvp"
           title="PvP"
           subtitle={`${pvpSuggestions.length}`}
-          columns={4}
+          columns={5}
         >
           {pvpSuggestions.map((suggestion) => (
             <SuggestionItem key={suggestion.id} suggestion={suggestion} />
