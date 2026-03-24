@@ -2,6 +2,7 @@ import { specs } from "../data/specs";
 import { pageMap } from "../data/pages";
 import type { Mode, PageEntry, SpecEntry, Suggestion } from "../types";
 import { buildUrl } from "./urlBuilder";
+import { getAvailableModes } from "./gridNavigation";
 
 function capitalize(s: string): string {
   return s.replace(/\b\w/g, (c) => c.toUpperCase());
@@ -51,7 +52,7 @@ export function getSuggestions(query: string): Suggestion[] {
 
   if (tokens.length === 0) {
     return specs.flatMap((spec) =>
-      (["pve", "pvp"] as Mode[]).map((mode) =>
+      getAvailableModes(spec).map((mode) =>
         makeSuggestion(spec, mode, getGuidePage(mode)),
       ),
     );
@@ -85,7 +86,7 @@ export function getSuggestions(query: string): Suggestion[] {
       pagePrefix = remaining.join(" ");
     }
 
-    const modes: Mode[] = modeFilter ? [modeFilter] : ["pve", "pvp"];
+    const modes: Mode[] = modeFilter ? [modeFilter] : getAvailableModes(spec);
 
     const results: Suggestion[] = [];
     for (const mode of modes) {
@@ -109,7 +110,7 @@ export function getSuggestions(query: string): Suggestion[] {
     s.aliases.some((a) => a.startsWith(normalize)),
   );
   return matchingSpecs.flatMap((s) =>
-    (["pve", "pvp"] as Mode[]).map((mode) =>
+    getAvailableModes(s).map((mode) =>
       makeSuggestion(s, mode, getGuidePage(mode)),
     ),
   );
