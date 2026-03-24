@@ -1,5 +1,16 @@
 export type Mode = "pve" | "pvp";
 
+export interface ClassEntry {
+  /** Stable class slug, e.g. "priest" or "death-knight" */
+  slug: string;
+  /** Human-readable class name */
+  name: string;
+  /** Accepted input tokens for class-first navigation */
+  aliases: string[];
+  /** Existing spec icon to reuse as the class tile artwork */
+  representativeSpecSlug: string;
+}
+
 export interface SpecEntry {
   /** URL slug, e.g. "shadow-priest" */
   slug: string;
