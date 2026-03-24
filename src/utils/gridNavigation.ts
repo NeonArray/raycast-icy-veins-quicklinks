@@ -10,6 +10,10 @@ import type {
 } from "../types";
 import { getSuggestions } from "./suggestions";
 
+export function getAvailableModes(spec: SpecEntry): Mode[] {
+  return spec.pveRole === "tank" ? ["pve"] : ["pve", "pvp"];
+}
+
 export interface SpecGridItem {
   classEntry: ClassEntry;
   name: string;
@@ -193,7 +197,7 @@ function resolveSpecState(
   const normalizedRemaining = normalizeQuery(remainingQuery);
 
   if (!normalizedRemaining) {
-    return { kind: "modes", items: ["pve", "pvp"], spec };
+    return { kind: "modes", items: getAvailableModes(spec), spec };
   }
 
   const [firstToken, ...rest] = normalizedRemaining.split(" ");
@@ -208,7 +212,7 @@ function resolveSpecState(
     };
   }
 
-  const matchingModes = (["pve", "pvp"] as Mode[]).filter((mode) =>
+  const matchingModes = getAvailableModes(spec).filter((mode) =>
     mode.startsWith(firstToken),
   );
 
