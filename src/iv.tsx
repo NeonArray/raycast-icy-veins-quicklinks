@@ -26,32 +26,25 @@ interface Arguments {
 }
 
 const MODE_ICON_SOURCES: Record<Mode, string> = {
-  pve: "https://wow.zamimg.com/images/wow/icons/large/pvecurrency-justice.jpg",
-  pvp: "https://wow.zamimg.com/images/wow/icons/large/ability_pvp_gladiatormedallion.jpg",
+  pve: "icons/mode-pve.jpg",
+  pvp: "icons/mode-pvp.jpg",
 };
 
 const PAGE_ICON_SOURCES = {
-  battleground:
-    "https://wow.zamimg.com/images/wow/icons/large/achievement_bg_winsoa.jpg",
-  comp: "https://wow.zamimg.com/images/wow/icons/large/achievement_arena_2v2_7.jpg",
-  gear: "https://wow.zamimg.com/images/wow/icons/large/inv_sword_04.jpg",
-  gems: "https://wow.zamimg.com/images/wow/icons/large/inv_misc_gem_variety_01.jpg",
-  guide: "https://wow.zamimg.com/images/wow/icons/large/inv_misc_book_09.jpg",
-  leveling:
-    "https://wow.zamimg.com/images/wow/icons/large/achievement_level_10.jpg",
-  macro: "https://wow.zamimg.com/images/wow/icons/large/inv_gizmo_02.jpg",
-  mythic:
-    "https://wow.zamimg.com/images/wow/icons/large/achievement_challengemode_gold.jpg",
-  race: "https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
-  resource:
-    "https://wow.zamimg.com/images/wow/icons/large/inv_misc_coin_01.jpg",
-  rotation:
-    "https://wow.zamimg.com/images/wow/icons/large/ability_rogue_slicedice.jpg",
-  spell:
-    "https://wow.zamimg.com/images/wow/icons/large/spell_holy_magicalsentry.jpg",
-  stats: "https://wow.zamimg.com/images/wow/icons/large/inv_misc_note_01.jpg",
-  talents:
-    "https://wow.zamimg.com/images/wow/icons/large/ability_marksmanship.jpg",
+  battleground: "icons/page-battleground.jpg",
+  comp: "icons/page-comp.jpg",
+  gear: "icons/page-gear.jpg",
+  gems: "icons/page-gems.jpg",
+  guide: "icons/page-guide.jpg",
+  leveling: "icons/page-leveling.jpg",
+  macro: "icons/page-macro.jpg",
+  mythic: "icons/page-mythic.jpg",
+  race: "icons/page-race.jpg",
+  resource: "icons/page-resource.jpg",
+  rotation: "icons/page-rotation.jpg",
+  spell: "icons/page-spell.jpg",
+  stats: "icons/page-stats.jpg",
+  talents: "icons/page-talents.jpg",
 } as const;
 
 export default function Command({
