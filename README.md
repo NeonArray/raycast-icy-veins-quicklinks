@@ -6,7 +6,7 @@ I am experimenting with using LLM tools to build projects. This is one such expe
 
 ## Usage
 
-Invoke the command by typing `iv` in Raycast. As you type a query, the list updates live with matching guides for all 40 WoW specs.
+Invoke the command by typing `iv` in Raycast. Pressing **Enter** with an empty query opens a staged grid: classes first, then specs, then `pve` / `pvp`, then the relevant sub-pages. You can still type a direct query like `sp pve gear` at any point, and the grid will jump to matching guides.
 
 ### Query format
 
