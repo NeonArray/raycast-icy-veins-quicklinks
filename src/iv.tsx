@@ -1,5 +1,10 @@
 import { Action, ActionPanel, Grid, LaunchProps } from "@raycast/api";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getSpecUsage,
+  incrementSpecUsage,
+  sortSpecsByUsage,
+} from "./utils/specUsage";
 import type {
   ClassEntry,
   Mode,
@@ -16,7 +21,7 @@ import {
   getPageQuery,
   getPageTitle,
   getShortestSpecAlias,
-  getSpecIconPath,
+  getSpecIconWithRolePath,
   resolveGridState,
   type GridState,
   type SpecGridItem,
@@ -72,7 +77,12 @@ export default function Command({
   arguments: args,
 }: LaunchProps<{ arguments: Arguments }>) {
   const [query, setQuery] = useState(args.initialQuery ?? "");
+  const [specUsage, setSpecUsage] = useState<Record<string, number>>({});
   const state = useMemo(() => resolveGridState(query), [query]);
+
+  useEffect(() => {
+    getSpecUsage().then(setSpecUsage);
+  }, []);
 
   return (
     <Grid
@@ -90,7 +100,7 @@ export default function Command({
         </ActionPanel>
       }
     >
-      {renderGrid(state, setQuery)}
+      {renderGrid(state, setQuery, specUsage)}
       <Grid.EmptyView
         title="No matching guides"
         description="Try a different class, spec, mode, or sub-page token."
@@ -124,6 +134,7 @@ function getNavigationTitle(state: GridState): string {
 function renderGrid(
   state: GridState,
   setQuery: (value: string) => void,
+  specUsage: Record<string, number>,
 ): Element | Element[] {
   switch (state.kind) {
     case "classes":
@@ -149,11 +160,14 @@ function renderGrid(
           subtitle={`${state.items.length}`}
           columns={5}
         >
-          {state.items.map((item) => (
+          {sortSpecsByUsage(state.items, specUsage).map((item) => (
             <SpecItem
               key={item.spec.slug}
               item={item}
-              onSelect={() => setQuery(getShortestSpecAlias(item.spec))}
+              onSelect={() => {
+                incrementSpecUsage(item.spec.slug);
+                setQuery(getShortestSpecAlias(item.spec));
+              }}
             />
           ))}
         </Grid.Section>
@@ -256,7 +270,7 @@ function SpecItem({
 }) {
   return (
     <Grid.Item
-      content={getSpecIconPath(item.spec)}
+      content={getSpecIconWithRolePath(item.spec)}
       title={item.name}
       subtitle={item.classEntry.name}
       keywords={item.spec.aliases}
