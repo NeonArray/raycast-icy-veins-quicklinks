@@ -1,5 +1,5 @@
 /**
- * Composites the role badge (dps/tank/healer) into the top-left corner of
+ * Composites the role badge (dps/tank/healer) into the bottom-right corner of
  * each spec icon and writes the result to assets/icons/with-role/.
  *
  * Run once (or after adding new specs/role icons):
@@ -27,6 +27,7 @@ slugs.forEach((slug, i) => specRoles.set(slug, roles[i]));
 
 const ICON_SIZE = 1024;
 const BADGE_SIZE = Math.round(ICON_SIZE * 0.25);
+const MARGIN = 25;
 
 async function composite(specSlug, pveRole) {
   const specPath = join(iconsDir, `${specSlug}.jpg`);
@@ -37,10 +38,12 @@ async function composite(specSlug, pveRole) {
   if (!existsSync(badgePath)) { console.warn(`  SKIP ${specSlug} — badge ${pveRole}.png not found`); return; }
 
   const badge = await sharp(badgePath).resize(BADGE_SIZE, BADGE_SIZE).toBuffer();
+  const top = ICON_SIZE - BADGE_SIZE - MARGIN;
+  const left = ICON_SIZE - BADGE_SIZE - MARGIN;
 
   await sharp(specPath)
     .resize(ICON_SIZE, ICON_SIZE)
-    .composite([{ input: badge, top: 0, left: 0 }])
+    .composite([{ input: badge, top, left }])
     .jpeg({ quality: 90 })
     .toFile(outPath);
 
