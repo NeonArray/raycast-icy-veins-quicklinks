@@ -1,5 +1,6 @@
 import { Action, ActionPanel, Grid, LaunchProps } from "@raycast/api";
 import { useMemo, useState } from "react";
+import { parseMacros, expandMacro } from "./utils/macros";
 import type {
   ClassEntry,
   Mode,
@@ -72,7 +73,11 @@ export default function Command({
   arguments: args,
 }: LaunchProps<{ arguments: Arguments }>) {
   const [query, setQuery] = useState(args.initialQuery ?? "");
-  const state = useMemo(() => resolveGridState(query), [query]);
+  const macros = useMemo(() => parseMacros(), []);
+  const state = useMemo(
+    () => resolveGridState(expandMacro(query, macros)),
+    [query, macros],
+  );
 
   return (
     <Grid
