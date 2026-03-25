@@ -78,7 +78,7 @@ export default function Command({
     <Grid
       columns={5}
       fit={Grid.Fit.Fill}
-      inset={Grid.Inset.None}
+      inset={Grid.Inset.Zero}
       navigationTitle={getNavigationTitle(state)}
       searchBarPlaceholder="Pick a class or type sp pve gear"
       onSearchTextChange={setQuery}
@@ -124,7 +124,7 @@ function getNavigationTitle(state: GridState): string {
 function renderGrid(
   state: GridState,
   setQuery: (value: string) => void,
-): JSX.Element | JSX.Element[] {
+): Element | Element[] {
   switch (state.kind) {
     case "classes":
       return (
