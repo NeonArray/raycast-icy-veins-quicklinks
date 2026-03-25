@@ -18,6 +18,13 @@
           "type": "text",
           "required": false
         }
+      ],
+      "preferences": [
+        { "name": "favorite1", "title": "Favorite Spec 1", "description": "Spec slug, e.g. shadow-priest", "type": "textfield", "required": false, "default": "" },
+        { "name": "favorite2", "title": "Favorite Spec 2", "description": "Spec slug, e.g. havoc-demon-hunter", "type": "textfield", "required": false, "default": "" },
+        { "name": "favorite3", "title": "Favorite Spec 3", "description": "Spec slug, e.g. blood-death-knight", "type": "textfield", "required": false, "default": "" },
+        { "name": "favorite4", "title": "Favorite Spec 4", "description": "Spec slug, e.g. windwalker-monk", "type": "textfield", "required": false, "default": "" },
+        { "name": "favorite5", "title": "Favorite Spec 5", "description": "Spec slug, e.g. restoration-druid", "type": "textfield", "required": false, "default": "" }
       ]
     }
   ],

@@ -1,5 +1,6 @@
 import { Action, ActionPanel, Grid, LaunchProps } from "@raycast/api";
 import { useMemo, useState } from "react";
+import { getFavoriteSpecs } from "./utils/favorites";
 import type {
   ClassEntry,
   Mode,
@@ -126,9 +127,44 @@ function renderGrid(
   setQuery: (value: string) => void,
 ): JSX.Element | JSX.Element[] {
   switch (state.kind) {
-    case "classes":
-      return (
+    case "classes": {
+      const favoriteSpecs = getFavoriteSpecs();
+      const favSection =
+        favoriteSpecs.length > 0 ? (
+          <Grid.Section
+            key="favorites"
+            title="Favorites"
+            subtitle={`${favoriteSpecs.length}`}
+            columns={5}
+          >
+            {favoriteSpecs.map((spec) => {
+              const classEntry = getClassForSpec(spec);
+              const item: SpecGridItem = {
+                classEntry,
+                name: spec.slug
+                  .split("-")
+                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                  .join(" ")
+                  .replace(
+                    new RegExp(`\\s+${classEntry.name}$`, "i"),
+                    ` ${classEntry.name}`,
+                  ),
+                spec,
+              };
+              return (
+                <SpecItem
+                  key={spec.slug}
+                  item={item}
+                  onSelect={() => setQuery(getShortestSpecAlias(spec))}
+                />
+              );
+            })}
+          </Grid.Section>
+        ) : null;
+
+      const classSection = (
         <Grid.Section
+          key="classes"
           title="Classes"
           subtitle={`${state.items.length}`}
           columns={5}
@@ -142,6 +178,9 @@ function renderGrid(
           ))}
         </Grid.Section>
       );
+
+      return favSection ? [favSection, classSection] : classSection;
+    }
     case "specs":
       return (
         <Grid.Section
