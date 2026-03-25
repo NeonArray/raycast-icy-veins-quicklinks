@@ -38,6 +38,10 @@ All parts are optional and can be typed in any order after the spec. The query i
 
 For the quickest flow, type `iv` then press **Space**. Raycast enters inline argument mode — type your full query (e.g. `sp pve gear`), then press **Enter** to open the view with results already filtered.
 
+### Copy Stat Priority
+
+When browsing specs, select any spec card and open the Action Panel (**⌘K**). The **"Copy Stat Priority"** action fetches the Icy Veins stat priority page for that spec and copies the priority order (e.g. `Mastery > Critical Strike > Haste > Versatility`) directly to your clipboard — no browser required. Results are cached for 30 minutes.
+
 ---
 
 ## Supported specs

@@ -1,4 +1,11 @@
-import { Action, ActionPanel, Grid, LaunchProps } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Grid,
+  Icon,
+  LaunchProps,
+  showHUD,
+} from "@raycast/api";
 import { useEffect, useMemo, useState } from "react";
 import {
   getSpecUsage,
@@ -13,6 +20,7 @@ import type {
   Suggestion,
 } from "./types";
 import { buildUrl } from "./utils/urlBuilder";
+import { copyStatPriorityToClipboard } from "./utils/statPriority";
 import {
   getClassForSpec,
   getClassIconPath,
@@ -277,6 +285,17 @@ function SpecItem({
       actions={
         <ActionPanel>
           <Action title={`Choose ${item.name}`} onAction={onSelect} />
+          <Action
+            title="Copy Stat Priority"
+            icon={Icon.Clipboard}
+            onAction={async () => {
+              const result = await copyStatPriorityToClipboard(
+                item.spec.slug,
+                item.spec.pveRole,
+              );
+              await showHUD(result ?? "Could not fetch stat priority");
+            }}
+          />
         </ActionPanel>
       }
     />
