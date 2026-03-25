@@ -250,6 +250,10 @@ export function getSpecIconPath(spec: SpecEntry): string {
   return `icons/${spec.slug}.jpg`;
 }
 
+export function getSpecIconWithRolePath(spec: SpecEntry): string {
+  return `icons/with-role/${spec.slug}.jpg`;
+}
+
 export function getShortestSpecAlias(spec: SpecEntry): string {
   return spec.aliases.reduce((shortest, alias) =>
     alias.length < shortest.length ? alias : shortest,

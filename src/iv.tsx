@@ -2,7 +2,6 @@ import { Action, ActionPanel, Grid, LaunchProps } from "@raycast/api";
 import { useEffect, useMemo, useState } from "react";
 import {
   getSpecUsage,
-  getRoleBadge,
   incrementSpecUsage,
   sortSpecsByUsage,
 } from "./utils/specUsage";
@@ -22,7 +21,7 @@ import {
   getPageQuery,
   getPageTitle,
   getShortestSpecAlias,
-  getSpecIconPath,
+  getSpecIconWithRolePath,
   resolveGridState,
   type GridState,
   type SpecGridItem,
@@ -271,9 +270,9 @@ function SpecItem({
 }) {
   return (
     <Grid.Item
-      content={getSpecIconPath(item.spec)}
+      content={getSpecIconWithRolePath(item.spec)}
       title={item.name}
-      subtitle={`${item.classEntry.name} · ${getRoleBadge(item.spec.pveRole)}`}
+      subtitle={item.classEntry.name}
       keywords={item.spec.aliases}
       actions={
         <ActionPanel>
