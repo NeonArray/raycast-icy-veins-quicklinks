@@ -1,72 +1,29 @@
 import { wowClasses } from "../data/classes";
-import { pageMap } from "../data/pages";
+import { getPagesForMode } from "../data/pages";
 import { specs } from "../data/specs";
+import { normalizeQuery, titleCase } from "./text";
+import { getBestStartMatch, matchClass, matchGlobalSpec } from "./specMatcher";
 import type {
   ClassEntry,
+  GridState,
   Mode,
   PageEntry,
   SpecEntry,
-  Suggestion,
+  SpecGridItem,
 } from "../types";
 import { getSuggestions } from "./suggestions";
+
+export type { GridState, SpecGridItem };
 
 export function getAvailableModes(spec: SpecEntry): Mode[] {
   return spec.pveRole === "tank" ? ["pve"] : ["pve", "pvp"];
 }
 
-export interface SpecGridItem {
-  classEntry: ClassEntry;
-  name: string;
-  spec: SpecEntry;
-}
-
-export type GridState =
-  | { kind: "classes"; items: ClassEntry[] }
-  | { kind: "specs"; classEntry?: ClassEntry; items: SpecGridItem[] }
-  | { kind: "modes"; items: Mode[]; spec: SpecEntry }
-  | { kind: "pages"; items: PageEntry[]; mode: Mode; spec: SpecEntry }
-  | { kind: "results"; suggestions: Suggestion[] };
-
-const PAGE_TITLES: Record<string, string> = {
-  guide: "Guide",
-  "leveling-guide": "Leveling Guide",
-  "easy-mode": "Easy Mode",
-  "spec-builds-talents": "Builds & Talents",
-  "rotation-cooldowns-abilities": "Rotation",
-  "stat-priority": "Stat Priority",
-  "gems-enchants-consumables": "Gems & Enchants",
-  "gear-best-in-slot": "Gear",
-  "mythic-plus-tips": "Mythic+ Tips",
-  "spell-summary": "Spell Summary",
-  "pvp-guide": "Guide",
-  "pvp-talents-and-builds": "Talents & Builds",
-  "pvp-stat-priority-gear-and-trinkets": "Gear & Trinkets",
-  "pvp-rotation-and-playstyle": "Rotation & Playstyle",
-  "battleground-blitz-pvp-guide": "Battleground Blitz",
-  "pvp-best-arena-compositions": "Arena Comps",
-  "pvp-useful-macros": "Macros",
-  "pvp-best-races-and-racials": "Races & Racials",
-  resources: "Resources",
-};
-
-function normalizeQuery(query: string): string {
-  return query.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-function startsWithBoundary(value: string, prefix: string): boolean {
-  return value === prefix || value.startsWith(`${prefix} `);
-}
-
-function removePrefix(value: string, prefix: string): string {
-  return value === prefix ? "" : value.slice(prefix.length).trimStart();
-}
-
-function titleCase(value: string): string {
-  return value.replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function getClassSpecs(classEntry: ClassEntry): SpecEntry[] {
-  return specs.filter((spec) => spec.slug.endsWith(`-${classEntry.slug}`));
+export function getClassSpecs(classEntry: ClassEntry): SpecEntry[] {
+  return specs.filter((spec) => {
+    const specClass = wowClasses.find((c) => spec.slug.endsWith(`-${c.slug}`));
+    return specClass?.slug === classEntry.slug;
+  });
 }
 
 function getClassScopedSpecKeywords(
@@ -78,46 +35,6 @@ function getClassScopedSpecKeywords(
     .replace(/-/g, " ");
 
   return Array.from(new Set([specName, ...spec.aliases]));
-}
-
-function getBestStartMatch<T>(
-  normalizedQuery: string,
-  entries: Array<{ aliases: string[]; item: T }>,
-): { item: T; alias: string; remainingQuery: string } | null {
-  let best: { item: T; alias: string; remainingQuery: string } | null = null;
-
-  for (const entry of entries) {
-    for (const alias of entry.aliases) {
-      if (!startsWithBoundary(normalizedQuery, alias)) continue;
-
-      if (!best || alias.length > best.alias.length) {
-        best = {
-          item: entry.item,
-          alias,
-          remainingQuery: removePrefix(normalizedQuery, alias),
-        };
-      }
-    }
-  }
-
-  return best;
-}
-
-function getExactClassMatch(normalizedQuery: string) {
-  return getBestStartMatch(
-    normalizedQuery,
-    wowClasses.map((classEntry) => ({
-      aliases: classEntry.aliases,
-      item: classEntry,
-    })),
-  );
-}
-
-function getExactGlobalSpecMatch(normalizedQuery: string) {
-  return getBestStartMatch(
-    normalizedQuery,
-    specs.map((spec) => ({ aliases: spec.aliases, item: spec })),
-  );
 }
 
 function getExactClassScopedSpecMatch(
@@ -180,7 +97,7 @@ function getMatchingClasses(prefix: string): ClassEntry[] {
 function getPages(mode: Mode, prefix = ""): PageEntry[] {
   const normalizedPrefix = normalizeQuery(prefix);
 
-  return [...pageMap[mode], ...pageMap.any].filter(
+  return getPagesForMode(mode).filter(
     (page) =>
       !normalizedPrefix ||
       page.aliases.some(
@@ -228,63 +145,86 @@ function resolveSpecState(
   };
 }
 
-export function resolveGridState(query: string): GridState {
-  const normalizedQuery = normalizeQuery(query);
+type QueryResolver = (normalizedQuery: string) => GridState | null;
 
+function resolveEmptyQuery(normalizedQuery: string): GridState | null {
   if (!normalizedQuery) {
     return { kind: "classes", items: wowClasses };
   }
+  return null;
+}
 
-  const exactGlobalSpecMatch = getExactGlobalSpecMatch(normalizedQuery);
-  if (exactGlobalSpecMatch) {
-    return resolveSpecState(
-      exactGlobalSpecMatch.item,
-      exactGlobalSpecMatch.remainingQuery,
-      getShortestSpecAlias(exactGlobalSpecMatch.item),
-    );
-  }
+function resolveExactGlobalSpec(normalizedQuery: string): GridState | null {
+  const match = matchGlobalSpec(normalizedQuery);
+  if (!match) return null;
+  return resolveSpecState(
+    match.item,
+    match.remainingQuery,
+    getShortestSpecAlias(match.item),
+  );
+}
 
-  const exactClassMatch = getExactClassMatch(normalizedQuery);
-  if (exactClassMatch) {
-    if (!exactClassMatch.remainingQuery) {
-      return {
-        kind: "specs",
-        classEntry: exactClassMatch.item,
-        items: getSpecGridItems(exactClassMatch.item),
-      };
-    }
+function resolveExactClass(normalizedQuery: string): GridState | null {
+  const match = matchClass(normalizedQuery);
+  if (!match) return null;
 
-    const exactClassScopedSpecMatch = getExactClassScopedSpecMatch(
-      exactClassMatch.item,
-      exactClassMatch.remainingQuery,
-    );
-
-    if (exactClassScopedSpecMatch) {
-      return resolveSpecState(
-        exactClassScopedSpecMatch.item,
-        exactClassScopedSpecMatch.remainingQuery,
-        getShortestSpecAlias(exactClassScopedSpecMatch.item),
-      );
-    }
-
+  if (!match.remainingQuery) {
     return {
       kind: "specs",
-      classEntry: exactClassMatch.item,
-      items: getSpecGridItems(
-        exactClassMatch.item,
-        exactClassMatch.remainingQuery,
-      ),
+      classEntry: match.item,
+      items: getSpecGridItems(match.item),
     };
   }
 
+  const specMatch = getExactClassScopedSpecMatch(
+    match.item,
+    match.remainingQuery,
+  );
+  if (specMatch) {
+    return resolveSpecState(
+      specMatch.item,
+      specMatch.remainingQuery,
+      getShortestSpecAlias(specMatch.item),
+    );
+  }
+
+  return {
+    kind: "specs",
+    classEntry: match.item,
+    items: getSpecGridItems(match.item, match.remainingQuery),
+  };
+}
+
+function resolveClassPrefix(normalizedQuery: string): GridState | null {
   const matchingClasses = getMatchingClasses(normalizedQuery);
   if (matchingClasses.length > 0) {
     return { kind: "classes", items: matchingClasses };
   }
+  return null;
+}
 
+function resolveSpecPrefix(normalizedQuery: string): GridState | null {
   const matchingSpecs = getGlobalSpecGridItems(normalizedQuery);
   if (matchingSpecs.length > 0) {
     return { kind: "specs", items: matchingSpecs };
+  }
+  return null;
+}
+
+export function resolveGridState(query: string): GridState {
+  const normalizedQuery = normalizeQuery(query);
+
+  const resolvers: QueryResolver[] = [
+    resolveEmptyQuery,
+    resolveExactGlobalSpec,
+    resolveExactClass,
+    resolveClassPrefix,
+    resolveSpecPrefix,
+  ];
+
+  for (const resolver of resolvers) {
+    const result = resolver(normalizedQuery);
+    if (result !== null) return result;
   }
 
   return { kind: "results", suggestions: getSuggestions(query) };
@@ -330,7 +270,5 @@ export function getPageQuery(
 }
 
 export function getPageTitle(page: PageEntry): string {
-  return (
-    PAGE_TITLES[page.urlSuffix] ?? titleCase(page.urlSuffix.replace(/-/g, " "))
-  );
+  return page.displayTitle;
 }

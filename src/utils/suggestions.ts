@@ -1,12 +1,10 @@
 import { specs } from "../data/specs";
-import { pageMap } from "../data/pages";
+import { pageMap, getPagesForMode } from "../data/pages";
 import type { Mode, PageEntry, SpecEntry, Suggestion } from "../types";
 import { buildUrl } from "./urlBuilder";
 import { getAvailableModes } from "./gridNavigation";
-
-function capitalize(s: string): string {
-  return s.replace(/\b\w/g, (c) => c.toUpperCase());
-}
+import { capitalize } from "./text";
+import { matchGlobalSpec } from "./specMatcher";
 
 function makeSuggestion(
   spec: SpecEntry,
@@ -58,23 +56,14 @@ export function getSuggestions(query: string): Suggestion[] {
     );
   }
 
-  // Phase A: try exact spec match (2-token first, then 1-token)
-  let spec: SpecEntry | null = null;
-  let consumed = 0;
+  // Phase A: try exact spec match using boundary-aware longest-alias matching
+  const specMatch = matchGlobalSpec(normalize);
 
-  if (tokens.length >= 2) {
-    const twoToken = tokens[0] + " " + tokens[1];
-    spec = specs.find((s) => s.aliases.includes(twoToken)) ?? null;
-    if (spec) consumed = 2;
-  }
-
-  if (!spec) {
-    spec = specs.find((s) => s.aliases.includes(tokens[0])) ?? null;
-    if (spec) consumed = 1;
-  }
-
-  if (spec) {
-    const remaining = tokens.slice(consumed);
+  if (specMatch) {
+    const spec = specMatch.item;
+    const remaining = specMatch.remainingQuery
+      ? specMatch.remainingQuery.split(" ")
+      : [];
 
     let modeFilter: Mode | null = null;
     let pagePrefix = "";
@@ -90,8 +79,7 @@ export function getSuggestions(query: string): Suggestion[] {
 
     const results: Suggestion[] = [];
     for (const mode of modes) {
-      const modePages = mode === "pve" ? pageMap.pve : pageMap.pvp;
-      const allPages = [...modePages, ...pageMap.any];
+      const allPages = getPagesForMode(mode);
       for (const page of allPages) {
         if (
           !pagePrefix ||

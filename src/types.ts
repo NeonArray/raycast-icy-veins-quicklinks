@@ -29,6 +29,8 @@ export interface PageEntry {
   aliases: string[];
   /** When true the URL is built differently (no mode segment) */
   special?: boolean;
+  /** Human-readable title shown in the grid and action panels */
+  displayTitle: string;
 }
 
 export interface PageMap {
@@ -52,6 +54,19 @@ export interface ParseError {
 export type ParseResult =
   | { ok: true; value: ParsedInput }
   | { ok: false; error: ParseError };
+
+export interface SpecGridItem {
+  classEntry: ClassEntry;
+  name: string;
+  spec: SpecEntry;
+}
+
+export type GridState =
+  | { kind: "classes"; items: ClassEntry[] }
+  | { kind: "specs"; classEntry?: ClassEntry; items: SpecGridItem[] }
+  | { kind: "modes"; items: Mode[]; spec: SpecEntry }
+  | { kind: "pages"; items: PageEntry[]; mode: Mode; spec: SpecEntry }
+  | { kind: "results"; suggestions: Suggestion[] };
 
 export interface Suggestion {
   /** Stable React key: "{slug}-{mode}-{urlSuffix}" */

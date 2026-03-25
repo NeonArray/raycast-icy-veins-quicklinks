@@ -11,6 +11,7 @@ import { buildUrl } from "./utils/urlBuilder";
 import {
   getClassForSpec,
   getClassIconPath,
+  getClassSpecs,
   getModeQuery,
   getPageQuery,
   getPageTitle,
@@ -46,6 +47,26 @@ const PAGE_ICON_SOURCES = {
   stats: "icons/page-stats.jpg",
   talents: "icons/page-talents.jpg",
 } as const;
+
+const PAGE_ICON_MAPPING: {
+  patterns: string[];
+  icon: keyof typeof PAGE_ICON_SOURCES;
+}[] = [
+  { patterns: ["battleground", "blitz"], icon: "battleground" },
+  { patterns: ["comp"], icon: "comp" },
+  { patterns: ["talent", "build"], icon: "talents" },
+  { patterns: ["gear", "trinkets"], icon: "gear" },
+  { patterns: ["rotation"], icon: "rotation" },
+  { patterns: ["leveling"], icon: "leveling" },
+  { patterns: ["resource"], icon: "resource" },
+  { patterns: ["race"], icon: "race" },
+  { patterns: ["macro"], icon: "macro" },
+  { patterns: ["mythic"], icon: "mythic" },
+  { patterns: ["stat"], icon: "stats" },
+  { patterns: ["gem", "enchant", "consumable"], icon: "gems" },
+  { patterns: ["spell"], icon: "spell" },
+  { patterns: ["guide"], icon: "guide" },
+];
 
 export default function Command({
   arguments: args,
@@ -209,7 +230,7 @@ function ClassItem({
   classEntry: ClassEntry;
   onSelect: () => void;
 }) {
-  const specCount = classEntry.slug === "druid" ? "4 specs" : "3 specs";
+  const specCount = `${getClassSpecs(classEntry).length} specs`;
 
   return (
     <Grid.Item
@@ -281,7 +302,11 @@ function ModeItem({
             url={buildUrl({
               spec,
               mode,
-              page: { aliases: ["guide"], urlSuffix: defaultGuide },
+              page: {
+                aliases: ["guide"],
+                urlSuffix: defaultGuide,
+                displayTitle: "Guide",
+              },
             })}
           />
         </ActionPanel>
@@ -322,33 +347,10 @@ function PageItem({
 }
 
 function getPageIcon(page: PageEntry): string {
-  if (
-    page.urlSuffix.includes("battleground") ||
-    page.urlSuffix.includes("blitz")
-  )
-    return PAGE_ICON_SOURCES.battleground;
-  if (page.urlSuffix.includes("comp")) return PAGE_ICON_SOURCES.comp;
-  if (page.urlSuffix.includes("talent") || page.urlSuffix.includes("build"))
-    return PAGE_ICON_SOURCES.talents;
-  if (page.urlSuffix.includes("gear") || page.urlSuffix.includes("trinkets"))
-    return PAGE_ICON_SOURCES.gear;
-  if (page.urlSuffix.includes("rotation")) return PAGE_ICON_SOURCES.rotation;
-  if (page.urlSuffix.includes("leveling")) return PAGE_ICON_SOURCES.leveling;
-  if (page.urlSuffix.includes("resource")) return PAGE_ICON_SOURCES.resource;
-  if (page.urlSuffix.includes("race")) return PAGE_ICON_SOURCES.race;
-  if (page.urlSuffix.includes("macro")) return PAGE_ICON_SOURCES.macro;
-  if (page.urlSuffix.includes("mythic")) return PAGE_ICON_SOURCES.mythic;
-  if (page.urlSuffix.includes("stat")) return PAGE_ICON_SOURCES.stats;
-  if (
-    page.urlSuffix.includes("gem") ||
-    page.urlSuffix.includes("enchant") ||
-    page.urlSuffix.includes("consumable")
-  ) {
-    return PAGE_ICON_SOURCES.gems;
-  }
-  if (page.urlSuffix.includes("spell")) return PAGE_ICON_SOURCES.spell;
-  if (page.urlSuffix.includes("guide")) return PAGE_ICON_SOURCES.guide;
-  return PAGE_ICON_SOURCES.guide;
+  const match = PAGE_ICON_MAPPING.find(({ patterns }) =>
+    patterns.some((p) => page.urlSuffix.includes(p)),
+  );
+  return PAGE_ICON_SOURCES[match?.icon ?? "guide"];
 }
 
 function SuggestionItem({ suggestion }: { suggestion: Suggestion }) {
