@@ -6,7 +6,8 @@ import {
   LaunchProps,
   showHUD,
 } from "@raycast/api";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getFavoriteSpecs, toggleFavorite } from "./utils/favorites";
 import {
   getSpecUsage,
   incrementSpecUsage,
@@ -86,7 +87,16 @@ export default function Command({
 }: LaunchProps<{ arguments: Arguments }>) {
   const [query, setQuery] = useState(args.initialQuery ?? "");
   const [specUsage, setSpecUsage] = useState<Record<string, number>>({});
+  const [favoriteSpecs, setFavoriteSpecs] = useState<SpecEntry[]>([]);
   const state = useMemo(() => resolveGridState(query), [query]);
+
+  const refreshFavorites = useCallback(() => {
+    getFavoriteSpecs().then(setFavoriteSpecs);
+  }, []);
+
+  useEffect(() => {
+    refreshFavorites();
+  }, [refreshFavorites]);
 
   useEffect(() => {
     getSpecUsage().then(setSpecUsage);
@@ -108,7 +118,7 @@ export default function Command({
         </ActionPanel>
       }
     >
-      {renderGrid(state, setQuery, specUsage)}
+      {renderGrid(state, setQuery, specUsage, favoriteSpecs, refreshFavorites)}
       <Grid.EmptyView
         title="No matching guides"
         description="Try a different class, spec, mode, or sub-page token."
@@ -143,11 +153,54 @@ function renderGrid(
   state: GridState,
   setQuery: (value: string) => void,
   specUsage: Record<string, number>,
+  favoriteSpecs: SpecEntry[],
+  refreshFavorites: () => void,
 ): Element | Element[] {
   switch (state.kind) {
-    case "classes":
-      return (
+    case "classes": {
+      const favSection =
+        favoriteSpecs.length > 0 ? (
+          <Grid.Section
+            key="favorites"
+            title="Favorites"
+            subtitle={`${favoriteSpecs.length}`}
+            columns={5}
+          >
+            {favoriteSpecs.map((spec) => {
+              const classEntry = getClassForSpec(spec);
+              const item: SpecGridItem = {
+                classEntry,
+                name: spec.slug
+                  .split("-")
+                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                  .join(" ")
+                  .replace(
+                    new RegExp(`\\s+${classEntry.name}$`, "i"),
+                    ` ${classEntry.name}`,
+                  ),
+                spec,
+              };
+              return (
+                <SpecItem
+                  key={spec.slug}
+                  item={item}
+                  isFavorited={true}
+                  onSelect={() => {
+                    incrementSpecUsage(item.spec.slug);
+                    setQuery(getShortestSpecAlias(spec));
+                  }}
+                  onToggleFavorite={() =>
+                    toggleFavorite(spec.slug).then(refreshFavorites)
+                  }
+                />
+              );
+            })}
+          </Grid.Section>
+        ) : null;
+
+      const classSection = (
         <Grid.Section
+          key="classes"
           title="Classes"
           subtitle={`${state.items.length}`}
           columns={5}
@@ -161,6 +214,9 @@ function renderGrid(
           ))}
         </Grid.Section>
       );
+
+      return favSection ? [favSection, classSection] : classSection;
+    }
     case "specs":
       return (
         <Grid.Section
@@ -172,10 +228,14 @@ function renderGrid(
             <SpecItem
               key={item.spec.slug}
               item={item}
+              isFavorited={favoriteSpecs.some((f) => f.slug === item.spec.slug)}
               onSelect={() => {
                 incrementSpecUsage(item.spec.slug);
                 setQuery(getShortestSpecAlias(item.spec));
               }}
+              onToggleFavorite={() =>
+                toggleFavorite(item.spec.slug).then(refreshFavorites)
+              }
             />
           ))}
         </Grid.Section>
@@ -271,10 +331,14 @@ function ClassItem({
 
 function SpecItem({
   item,
+  isFavorited,
   onSelect,
+  onToggleFavorite,
 }: {
   item: SpecGridItem;
+  isFavorited: boolean;
   onSelect: () => void;
+  onToggleFavorite: () => void;
 }) {
   return (
     <Grid.Item
@@ -295,6 +359,12 @@ function SpecItem({
               );
               await showHUD(result ?? "Could not fetch stat priority");
             }}
+          />
+          <Action
+            title={isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+            icon={isFavorited ? Icon.StarDisabled : Icon.Star}
+            shortcut={{ modifiers: ["cmd"], key: "f" }}
+            onAction={onToggleFavorite}
           />
         </ActionPanel>
       }
