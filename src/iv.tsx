@@ -1,4 +1,11 @@
-import { Action, ActionPanel, Grid, LaunchProps } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Grid,
+  Icon,
+  LaunchProps,
+  openExtensionPreferences,
+} from "@raycast/api";
 import { useMemo, useState } from "react";
 import { parseMacros, expandMacro } from "./utils/macros";
 import type {
@@ -92,6 +99,7 @@ export default function Command({
       actions={
         <ActionPanel>
           <Action title="Reset Query" onAction={() => setQuery("")} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     >
@@ -102,6 +110,7 @@ export default function Command({
         actions={
           <ActionPanel>
             <Action title="Reset Query" onAction={() => setQuery("")} />
+            <ManageMacrosAction />
           </ActionPanel>
         }
       />
@@ -246,6 +255,7 @@ function ClassItem({
       actions={
         <ActionPanel>
           <Action title={`Choose ${classEntry.name}`} onAction={onSelect} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -268,6 +278,7 @@ function SpecItem({
       actions={
         <ActionPanel>
           <Action title={`Choose ${item.name}`} onAction={onSelect} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -305,6 +316,7 @@ function ModeItem({
               },
             })}
           />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -336,6 +348,7 @@ function PageItem({
         <ActionPanel>
           <Action.OpenInBrowser url={url} title={`Open ${title}`} />
           <Action title="Fill Query" onAction={() => setQuery(query)} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -368,8 +381,21 @@ function SuggestionItem({ suggestion }: { suggestion: Suggestion }) {
       actions={
         <ActionPanel>
           <Action.OpenInBrowser url={suggestion.url} title="Open Guide" />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
+  );
+}
+
+function ManageMacrosAction() {
+  return (
+    <ActionPanel.Section>
+      <Action
+        title="Manage Custom Macros"
+        icon={Icon.Gear}
+        onAction={openExtensionPreferences}
+      />
+    </ActionPanel.Section>
   );
 }
