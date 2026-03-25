@@ -4,9 +4,11 @@ import {
   Grid,
   Icon,
   LaunchProps,
+  open,
   showHUD,
 } from "@raycast/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { addRecent, getRecents } from "./utils/recents";
 import { getFavoriteSpecs, toggleFavorite } from "./utils/favorites";
 import {
   getSpecUsage,
@@ -17,6 +19,7 @@ import type {
   ClassEntry,
   Mode,
   PageEntry,
+  RecentEntry,
   SpecEntry,
   Suggestion,
 } from "./types";
@@ -88,6 +91,7 @@ export default function Command({
   const [query, setQuery] = useState(args.initialQuery ?? "");
   const [specUsage, setSpecUsage] = useState<Record<string, number>>({});
   const [favoriteSpecs, setFavoriteSpecs] = useState<SpecEntry[]>([]);
+  const [recents, setRecents] = useState<RecentEntry[]>([]);
   const state = useMemo(() => resolveGridState(query), [query]);
 
   const refreshFavorites = useCallback(() => {
@@ -100,6 +104,10 @@ export default function Command({
 
   useEffect(() => {
     getSpecUsage().then(setSpecUsage);
+  }, []);
+
+  useEffect(() => {
+    getRecents().then(setRecents);
   }, []);
 
   return (
@@ -118,7 +126,15 @@ export default function Command({
         </ActionPanel>
       }
     >
-      {renderGrid(state, setQuery, specUsage, favoriteSpecs, refreshFavorites)}
+      {renderGrid(
+        state,
+        setQuery,
+        specUsage,
+        favoriteSpecs,
+        refreshFavorites,
+        recents,
+        setRecents,
+      )}
       <Grid.EmptyView
         title="No matching guides"
         description="Try a different class, spec, mode, or sub-page token."
@@ -155,9 +171,34 @@ function renderGrid(
   specUsage: Record<string, number>,
   favoriteSpecs: SpecEntry[],
   refreshFavorites: () => void,
+  recents: RecentEntry[],
+  setRecents: (entries: RecentEntry[]) => void,
 ): Element | Element[] {
   switch (state.kind) {
     case "classes": {
+      const recentSection =
+        recents.length > 0 ? (
+          <Grid.Section
+            key="recent"
+            title="Recent"
+            subtitle={`${recents.length}`}
+            columns={5}
+          >
+            {recents.map((entry) => (
+              <RecentItem
+                key={entry.id}
+                entry={entry}
+                onOpen={() => {
+                  addRecent({ ...entry, addedAt: Date.now() }).then(() =>
+                    getRecents().then(setRecents),
+                  );
+                  open(entry.url);
+                }}
+              />
+            ))}
+          </Grid.Section>
+        ) : null;
+
       const favSection =
         favoriteSpecs.length > 0 ? (
           <Grid.Section
@@ -215,7 +256,9 @@ function renderGrid(
         </Grid.Section>
       );
 
-      return favSection ? [favSection, classSection] : classSection;
+      return [recentSection, favSection, classSection].filter(
+        Boolean,
+      ) as Element[];
     }
     case "specs":
       return (
@@ -270,6 +313,7 @@ function renderGrid(
               mode={state.mode}
               page={page}
               setQuery={setQuery}
+              setRecents={setRecents}
               spec={state.spec}
             />
           ))}
@@ -413,16 +457,32 @@ function PageItem({
   mode,
   page,
   setQuery,
+  setRecents,
   spec,
 }: {
   mode: Mode;
   page: PageEntry;
   setQuery: (value: string) => void;
+  setRecents: (entries: RecentEntry[]) => void;
   spec: SpecEntry;
 }) {
   const query = getPageQuery(spec, mode, page);
   const title = getPageTitle(page);
   const url = buildUrl({ spec, mode, page });
+  const entryId = `${spec.slug}-${mode}-${page.urlSuffix}`;
+  const entryTitle = `${getShortestSpecAlias(spec).toUpperCase()} — ${title}`;
+
+  function handleOpen() {
+    const entry: RecentEntry = {
+      id: entryId,
+      url,
+      title: entryTitle,
+      specSlug: spec.slug,
+      addedAt: Date.now(),
+    };
+    addRecent(entry).then(() => getRecents().then(setRecents));
+    open(url);
+  }
 
   return (
     <Grid.Item
@@ -432,7 +492,7 @@ function PageItem({
       keywords={page.aliases.filter((alias) => alias !== "")}
       actions={
         <ActionPanel>
-          <Action.OpenInBrowser url={url} title={`Open ${title}`} />
+          <Action title={`Open ${title}`} onAction={handleOpen} />
           <Action title="Fill Query" onAction={() => setQuery(query)} />
         </ActionPanel>
       }
@@ -466,6 +526,30 @@ function SuggestionItem({ suggestion }: { suggestion: Suggestion }) {
       actions={
         <ActionPanel>
           <Action.OpenInBrowser url={suggestion.url} title="Open Guide" />
+        </ActionPanel>
+      }
+    />
+  );
+}
+
+function RecentItem({
+  entry,
+  onOpen,
+}: {
+  entry: RecentEntry;
+  onOpen: () => void;
+}) {
+  return (
+    <Grid.Item
+      content={getSpecIconWithRolePath({
+        slug: entry.specSlug,
+        aliases: [],
+        pveRole: "",
+      })}
+      title={entry.title}
+      actions={
+        <ActionPanel>
+          <Action title="Open Guide" onAction={onOpen} />
         </ActionPanel>
       }
     />

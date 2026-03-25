@@ -68,6 +68,16 @@ export type GridState =
   | { kind: "pages"; items: PageEntry[]; mode: Mode; spec: SpecEntry }
   | { kind: "results"; suggestions: Suggestion[] };
 
+export interface RecentEntry {
+  /** Unique key: `${specSlug}-${mode}-${urlSuffix}` */
+  id: string;
+  url: string;
+  /** e.g. "Shadow Priest — Gear" */
+  title: string;
+  specSlug: string;
+  addedAt: number;
+}
+
 export interface Suggestion {
   /** Stable React key: "{slug}-{mode}-{urlSuffix}" */
   id: string;
