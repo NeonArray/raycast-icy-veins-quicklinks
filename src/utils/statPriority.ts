@@ -26,11 +26,15 @@ export function parseStatPriority(html: string): string | null {
 
   const statKeywords =
     /intellect|strength|agility|stamina|critical|haste|mastery|versatility|speed|leech|avoidance/i;
+  // Changelog entries look like "30 Nov. 2025: ..." or "04 Aug. 2025: ..."
+  const changelogPattern = /^\d{1,2}\s+[A-Z][a-z]+\.?\s+\d{4}:/;
 
   const items: string[] = [];
   let match;
   while ((match = listItemRegex.exec(html)) !== null) {
     const text = match[1].replace(tagRegex, "").trim();
+    // Stop as soon as we hit the changelog section
+    if (changelogPattern.test(text)) break;
     if (statKeywords.test(text) && text.length < 100) {
       items.push(text);
     }
@@ -45,7 +49,7 @@ export async function fetchStatPriority(
   specSlug: string,
   pveRole: string,
 ): Promise<string | null> {
-  const cacheKey = `stat-priority:${specSlug}`;
+  const cacheKey = `stat-priority-v2:${specSlug}`;
 
   const cached = await LocalStorage.getItem<string>(cacheKey);
   if (cached) {

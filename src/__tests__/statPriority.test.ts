@@ -105,6 +105,19 @@ describe("parseStatPriority()", () => {
     expect(result).toBe("Haste > Mastery");
   });
 
+  it("stops at changelog entries and does not include them", () => {
+    const html = `<ul>
+      <li>Mastery</li>
+      <li>Critical Strike</li>
+      <li>Haste</li>
+      <li>Versatility</li>
+      <li>30 Nov. 2025: Added Haste FAQ.</li>
+      <li>04 Aug. 2025: Updated for Patch 11.2, increasing Critical Strike value significantly.</li>
+    </ul>`;
+    const result = parseStatPriority(html);
+    expect(result).toBe("Mastery > Critical Strike > Haste > Versatility");
+  });
+
   it("caps extraction at 6 items", () => {
     const html = `<ul>
       <li>Intellect</li>

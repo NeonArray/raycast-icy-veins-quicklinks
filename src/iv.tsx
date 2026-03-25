@@ -279,9 +279,7 @@ function SpecItem({
                 item.spec.slug,
                 item.spec.pveRole,
               );
-              await showHUD(
-                result ? `Copied: ${result}` : "Could not fetch stat priority",
-              );
+              await showHUD(result ?? "Could not fetch stat priority");
             }}
           />
         </ActionPanel>
