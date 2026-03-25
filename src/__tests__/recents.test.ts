@@ -74,14 +74,14 @@ describe("getRecents()", () => {
 // ---------------------------------------------------------------------------
 
 describe("addRecent()", () => {
-  it("prepends a new entry", async () => {
+  it("prepends a new entry, keeping only the most recent", async () => {
     const a = makeEntry("shadow-priest-pve-guide");
     const b = makeEntry("frost-mage-pve-guide");
     await addRecent(a);
     await addRecent(b);
     const result = await getRecents();
+    expect(result).toHaveLength(1);
     expect(result[0].id).toBe("frost-mage-pve-guide");
-    expect(result[1].id).toBe("shadow-priest-pve-guide");
   });
 
   it("deduplicates by id, moving existing entry to front", async () => {
@@ -89,24 +89,22 @@ describe("addRecent()", () => {
     const b = makeEntry("frost-mage-pve-guide", { addedAt: 2 });
     await addRecent(a);
     await addRecent(b);
-    // Re-add 'a' — should move to front
+    // Re-add 'a' — should replace b since cap is 1
     const aRefreshed = makeEntry("shadow-priest-pve-guide", { addedAt: 3 });
     await addRecent(aRefreshed);
     const result = await getRecents();
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(1);
     expect(result[0].id).toBe("shadow-priest-pve-guide");
     expect(result[0].addedAt).toBe(3);
-    expect(result[1].id).toBe("frost-mage-pve-guide");
   });
 
-  it("caps stored entries at 8 (MAX_RECENTS)", async () => {
-    for (let i = 0; i < 10; i++) {
+  it("caps stored entries at 1 (MAX_RECENTS)", async () => {
+    for (let i = 0; i < 3; i++) {
       await addRecent(makeEntry(`entry-${i}`));
     }
     const result = await getRecents();
-    expect(result).toHaveLength(8);
-    // Most recent entries are at the front
-    expect(result[0].id).toBe("entry-9");
-    expect(result[1].id).toBe("entry-8");
+    expect(result).toHaveLength(1);
+    // Most recent entry is at the front
+    expect(result[0].id).toBe("entry-2");
   });
 });

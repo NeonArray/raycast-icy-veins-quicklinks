@@ -2,7 +2,7 @@ import { LocalStorage } from "@raycast/api";
 import type { RecentEntry } from "../types";
 
 const STORAGE_KEY = "recent-guides";
-const MAX_RECENTS = 8;
+const MAX_RECENTS = 1;
 
 export async function getRecents(): Promise<RecentEntry[]> {
   const raw = await LocalStorage.getItem<string>(STORAGE_KEY);
