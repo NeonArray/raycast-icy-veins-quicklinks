@@ -1,32 +1,51 @@
-import { getPreferenceValues } from "@raycast/api";
+import { LocalStorage, showHUD } from "@raycast/api";
 import { specs } from "../data/specs";
 import type { SpecEntry } from "../types";
 
-interface FavPrefs {
-  favorite1: string;
-  favorite2: string;
-  favorite3: string;
-  favorite4: string;
-  favorite5: string;
+const STORAGE_KEY = "favorites";
+const MAX_FAVORITES = 5;
+
+export async function getFavoriteSlugs(): Promise<string[]> {
+  const raw = await LocalStorage.getItem<string>(STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
 }
 
-export function getFavoriteSpecs(): SpecEntry[] {
-  const prefs = getPreferenceValues<FavPrefs>();
-  const seen = new Set<string>();
-  return [
-    prefs.favorite1,
-    prefs.favorite2,
-    prefs.favorite3,
-    prefs.favorite4,
-    prefs.favorite5,
-  ]
-    .map((slug) => slug?.trim().toLowerCase())
-    .filter(Boolean)
-    .filter((slug) => {
-      if (seen.has(slug)) return false;
-      seen.add(slug);
-      return true;
-    })
+export async function getFavoriteSpecs(): Promise<SpecEntry[]> {
+  const slugs = await getFavoriteSlugs();
+  return slugs
     .map((slug) => specs.find((s) => s.slug === slug))
     .filter((s): s is SpecEntry => s !== undefined);
+}
+
+export async function isFavorite(specSlug: string): Promise<boolean> {
+  const slugs = await getFavoriteSlugs();
+  return slugs.includes(specSlug);
+}
+
+export async function addFavorite(specSlug: string): Promise<void> {
+  const slugs = await getFavoriteSlugs();
+  if (slugs.includes(specSlug)) return;
+  const updated = [specSlug, ...slugs].slice(0, MAX_FAVORITES);
+  await LocalStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  await showHUD("Added to Favorites");
+}
+
+export async function removeFavorite(specSlug: string): Promise<void> {
+  const slugs = await getFavoriteSlugs();
+  const updated = slugs.filter((s) => s !== specSlug);
+  await LocalStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  await showHUD("Removed from Favorites");
+}
+
+export async function toggleFavorite(specSlug: string): Promise<void> {
+  if (await isFavorite(specSlug)) {
+    await removeFavorite(specSlug);
+  } else {
+    await addFavorite(specSlug);
+  }
 }
