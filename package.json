@@ -18,6 +18,48 @@
           "type": "text",
           "required": false
         }
+      ],
+      "preferences": [
+        {
+          "name": "macro1",
+          "title": "Macro 1",
+          "description": "e.g. main=sp pve gear",
+          "type": "textfield",
+          "required": false,
+          "default": ""
+        },
+        {
+          "name": "macro2",
+          "title": "Macro 2",
+          "description": "e.g. arenas=ww pvp comp",
+          "type": "textfield",
+          "required": false,
+          "default": ""
+        },
+        {
+          "name": "macro3",
+          "title": "Macro 3",
+          "description": "e.g. bis=bdk pve gear",
+          "type": "textfield",
+          "required": false,
+          "default": ""
+        },
+        {
+          "name": "macro4",
+          "title": "Macro 4",
+          "description": "e.g. alts=ret pve guide",
+          "type": "textfield",
+          "required": false,
+          "default": ""
+        },
+        {
+          "name": "macro5",
+          "title": "Macro 5",
+          "description": "e.g. tank=prot pve guide",
+          "type": "textfield",
+          "required": false,
+          "default": ""
+        }
       ]
     }
   ],

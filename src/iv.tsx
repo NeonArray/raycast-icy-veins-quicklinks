@@ -5,11 +5,13 @@ import {
   Icon,
   LaunchProps,
   open,
+  openExtensionPreferences,
   showHUD,
 } from "@raycast/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { addRecent, getRecents } from "./utils/recents";
 import { getFavoriteSpecs, toggleFavorite } from "./utils/favorites";
+import { parseMacros, expandMacro } from "./utils/macros";
 import {
   getSpecUsage,
   incrementSpecUsage,
@@ -92,7 +94,11 @@ export default function Command({
   const [specUsage, setSpecUsage] = useState<Record<string, number>>({});
   const [favoriteSpecs, setFavoriteSpecs] = useState<SpecEntry[]>([]);
   const [recents, setRecents] = useState<RecentEntry[]>([]);
-  const state = useMemo(() => resolveGridState(query), [query]);
+  const macros = useMemo(() => parseMacros(), []);
+  const state = useMemo(
+    () => resolveGridState(expandMacro(query, macros)),
+    [query, macros],
+  );
 
   const refreshFavorites = useCallback(() => {
     getFavoriteSpecs().then(setFavoriteSpecs);
@@ -123,6 +129,7 @@ export default function Command({
       actions={
         <ActionPanel>
           <Action title="Reset Query" onAction={() => setQuery("")} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     >
@@ -141,6 +148,7 @@ export default function Command({
         actions={
           <ActionPanel>
             <Action title="Reset Query" onAction={() => setQuery("")} />
+            <ManageMacrosAction />
           </ActionPanel>
         }
       />
@@ -367,6 +375,7 @@ function ClassItem({
       actions={
         <ActionPanel>
           <Action title={`Choose ${classEntry.name}`} onAction={onSelect} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -410,6 +419,7 @@ function SpecItem({
             shortcut={{ modifiers: ["cmd"], key: "f" }}
             onAction={onToggleFavorite}
           />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -447,6 +457,7 @@ function ModeItem({
               },
             })}
           />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -494,6 +505,7 @@ function PageItem({
         <ActionPanel>
           <Action title={`Open ${title}`} onAction={handleOpen} />
           <Action title="Fill Query" onAction={() => setQuery(query)} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -526,6 +538,7 @@ function SuggestionItem({ suggestion }: { suggestion: Suggestion }) {
       actions={
         <ActionPanel>
           <Action.OpenInBrowser url={suggestion.url} title="Open Guide" />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
@@ -550,8 +563,21 @@ function RecentItem({
       actions={
         <ActionPanel>
           <Action title="Open Guide" onAction={onOpen} />
+          <ManageMacrosAction />
         </ActionPanel>
       }
     />
+  );
+}
+
+function ManageMacrosAction() {
+  return (
+    <ActionPanel.Section>
+      <Action
+        title="Manage Custom Macros"
+        icon={Icon.Gear}
+        onAction={openExtensionPreferences}
+      />
+    </ActionPanel.Section>
   );
 }

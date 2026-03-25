@@ -8,6 +8,30 @@ I am experimenting with using LLM tools to build projects. This is one such expe
 
 Invoke the command by typing `iv` in Raycast. Pressing **Enter** with an empty query opens a staged grid: classes first, then specs, then `pve` / `pvp`, then the relevant sub-pages. You can still type a direct query like `sp pve gear` at any point, and the grid will jump to matching guides.
 
+### Home grid
+
+The empty-query grid shows up to three sections in order:
+
+| Section | Description |
+|---------|-------------|
+| **Recent** | The last guide page you opened (1 slot) |
+| **Favorites** | Your starred specs — up to 5 (see [Favorites](#favorites)) |
+| **Classes** | All playable classes |
+
+### Favorites
+
+On any spec card, press **⌘K** to open the Action Panel and choose **"Add to Favorites"** (or **⌘F** directly). The spec immediately appears in the Favorites section on the home grid. Select the action again to remove it. Up to 5 favorites are stored.
+
+### Stat Priority Copier
+
+On any spec card, open the Action Panel and choose **"Copy Stat Priority"**. The extension fetches the spec's PvE guide, parses the stat priority list, and copies it to the clipboard (e.g. `Mastery > Critical Strike > Haste > Versatility`). Results are cached for 1 hour.
+
+### Custom Macros
+
+Define up to 5 personal text macros in the extension preferences (open via **"Manage Custom Macros"** in any Action Panel). Each macro has a name and body. On any spec page item, open the Action Panel to see your macros listed — selecting one copies it to the clipboard.
+
+To open extension preferences at any time, use **"Manage Custom Macros"** from any Action Panel (⚙ gear icon).
+
 ### Query format
 
 ```
@@ -193,18 +217,32 @@ src/
   iv.tsx                    # Raycast command entry point
   types.ts                  # shared TypeScript interfaces
   data/
-    specs.ts                # all 40 specs with slugs and aliases
+    classes.ts              # all WoW classes with slugs and aliases
+    specs.ts                # all 40 specs with slugs, aliases, and roles
     pages.ts                # PvE / PvP / any page definitions
   utils/
-    parser.ts               # query parser
     urlBuilder.ts           # URL construction
+    gridNavigation.ts       # query → grid state resolver
     suggestions.ts          # live autocomplete engine
+    specMatcher.ts          # shared spec/class matching helpers
+    text.ts                 # shared string utilities
+    specUsage.ts            # tracks spec selection frequency
+    statPriority.ts         # fetches and parses stat priority from guides
+    favorites.ts            # LocalStorage-backed favorites
+    recents.ts              # LocalStorage-backed recent guide entries
+    macros.ts               # parses and expands custom macros
   __tests__/
     data.test.ts
-    parser.test.ts
-    urlBuilder.test.ts
+    gridNavigation.test.ts
     suggestions.test.ts
+    favorites.test.ts
+    recents.test.ts
+    macros.test.ts
 assets/
   extension-icon.png        # Icy Veins favicon (512×512)
   icons/                    # per-spec WoW icons (40 × .jpg)
+    with-role/              # composited icons with role badge (bottom-right)
+    dps.png / tank.png / healer.png
+scripts/
+  generate-role-icons.mjs   # composites role badges onto spec icons (run via npm run generate-icons)
 ```
