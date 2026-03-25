@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Grid, Image, LaunchProps } from "@raycast/api";
+import { Action, ActionPanel, Grid, LaunchProps } from "@raycast/api";
 import { useMemo, useState } from "react";
 import type {
   ClassEntry,
@@ -77,8 +77,8 @@ export default function Command({
   return (
     <Grid
       columns={5}
-      fit={Grid.Fit.Contain}
-      inset={Grid.Inset.Small}
+      fit={Grid.Fit.Fill}
+      inset={Grid.Inset.None}
       navigationTitle={getNavigationTitle(state)}
       searchBarPlaceholder="Pick a class or type sp pve gear"
       onSearchTextChange={setQuery}
@@ -234,10 +234,7 @@ function ClassItem({
 
   return (
     <Grid.Item
-      content={{
-        source: getClassIconPath(classEntry),
-        mask: Image.Mask.RoundedRectangle,
-      }}
+      content={getClassIconPath(classEntry)}
       title={classEntry.name}
       subtitle={specCount}
       keywords={classEntry.aliases}
@@ -259,10 +256,7 @@ function SpecItem({
 }) {
   return (
     <Grid.Item
-      content={{
-        source: getSpecIconPath(item.spec),
-        mask: Image.Mask.RoundedRectangle,
-      }}
+      content={getSpecIconPath(item.spec)}
       title={item.name}
       subtitle={item.classEntry.name}
       keywords={item.spec.aliases}
@@ -288,10 +282,7 @@ function ModeItem({
 
   return (
     <Grid.Item
-      content={{
-        source: MODE_ICON_SOURCES[mode],
-        mask: Image.Mask.RoundedRectangle,
-      }}
+      content={MODE_ICON_SOURCES[mode]}
       title={mode.toUpperCase()}
       subtitle={getShortestSpecAlias(spec)}
       actions={
@@ -332,7 +323,7 @@ function PageItem({
 
   return (
     <Grid.Item
-      content={{ source: getPageIcon(page), mask: Image.Mask.RoundedRectangle }}
+      content={getPageIcon(page)}
       title={title}
       subtitle={query}
       keywords={page.aliases.filter((alias) => alias !== "")}
@@ -362,7 +353,7 @@ function SuggestionItem({ suggestion }: { suggestion: Suggestion }) {
 
   return (
     <Grid.Item
-      content={{ source: suggestion.icon, mask: Image.Mask.RoundedRectangle }}
+      content={suggestion.icon}
       title={suggestion.title}
       subtitle={suggestion.subtitle}
       accessory={{
