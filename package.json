@@ -1,15 +1,15 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "icy-veins-quicklinks",
-  "title": "Icy-Veins Quicklinks",
-  "description": "Quickly access Icy Veins",
+  "title": "Icy Veins Quicklinks",
+  "description": "Instantly navigate to Icy Veins World of Warcraft class and spec guides.",
   "icon": "extension-icon.png",
   "license": "MIT",
   "commands": [
     {
       "name": "iv",
-      "title": "IV",
-      "description": "Invoke the Icy Veins quicklinks",
+      "title": "Search Guides",
+      "description": "Browse and open Icy Veins WoW class and spec guides",
       "mode": "view",
       "arguments": [
         {
@@ -60,11 +60,12 @@
           "required": false,
           "default": ""
         }
-      ]
+      ],
+      "subtitle": "Icy Veins"
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.103.0",
+    "@raycast/api": "^1.104.11",
     "@raycast/utils": "^2.2.1"
   },
   "devDependencies": {
@@ -90,10 +91,11 @@
   },
   "author": "NeonArray",
   "platforms": [
-    "Windows",
-    "macOS"
+    "macOS",
+    "Windows"
   ],
   "categories": [
-    "Data"
-  ]
+    "Games"
+  ],
+  "version": "2.0.0"
 }
