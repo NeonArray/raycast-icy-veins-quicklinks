@@ -202,13 +202,29 @@ When browsing specs, select any spec card and open the Action Panel (**⌘K**). 
 ## Development
 
 ```bash
-npm install       # install dependencies
-npm test          # run test suite (vitest)
-npm run build     # build the extension
-npm run lint      # lint + format check
-npm run fix-lint  # auto-fix formatting
-npm run dev       # start dev server (ray develop)
+npm install           # install dependencies
+npm test              # run test suite (vitest)
+npm run build         # build the extension
+npm run lint          # lint + format check
+npm run fix-lint      # auto-fix formatting
+npm run dev           # start dev server (ray develop)
+npm run generate-icons  # composite role badges onto spec icons (see below)
 ```
+
+### Role icon generation
+
+Spec icons displayed in the grid are pre-composited at build time — each base spec icon has a small role badge (DPS / Tank / Healer) composited into the bottom-right corner. The output is written to `assets/icons/with-role/` and committed to the repository.
+
+**Re-run this script whenever:**
+- A new spec is added to `src/data/specs.ts`
+- The role badge images (`assets/icons/dps.png`, `tank.png`, `healer.png`) are replaced
+- A spec's `pveRole` changes
+
+```bash
+npm run generate-icons
+```
+
+The script reads spec slugs and roles directly from `src/data/specs.ts`, then uses [sharp](https://sharp.pixelplumbing.com/) to composite each badge at 25% icon size with 25px margin. Commit the updated `assets/icons/with-role/` files after running.
 
 ### Project structure
 
