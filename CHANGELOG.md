@@ -1,6 +1,6 @@
 # Icy Veins Quicklinks Changelog
 
-## [Copy Link Action on Page Items] - 2026-03-26
+## [Copy Link Action on Page Items] - {PR_MERGE_DATE}
 
 ### Added
 - **Copy Link** action (⌘C) on all guide page items — copies the guide URL to clipboard and shows a success toast notification with the guide title

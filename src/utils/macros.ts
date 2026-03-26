@@ -1,15 +1,7 @@
 import { getPreferenceValues } from "@raycast/api";
 
-interface MacroPrefs {
-  macro1: string;
-  macro2: string;
-  macro3: string;
-  macro4: string;
-  macro5: string;
-}
-
 export function parseMacros(): Map<string, string> {
-  const prefs = getPreferenceValues<MacroPrefs>();
+  const prefs = getPreferenceValues<Preferences.Iv>();
   const map = new Map<string, string>();
   for (const raw of [
     prefs.macro1,

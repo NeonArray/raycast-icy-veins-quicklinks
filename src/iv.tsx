@@ -50,10 +50,6 @@ import {
   type SpecGridItem,
 } from "./utils/gridNavigation";
 
-interface Arguments {
-  initialQuery: string;
-}
-
 const MODE_ICON_SOURCES: Record<Mode, string> = {
   pve: "icons/mode-pve.jpg",
   pvp: "icons/mode-pvp.jpg",
@@ -98,7 +94,7 @@ const PAGE_ICON_MAPPING: {
 
 export default function Command({
   arguments: args,
-}: LaunchProps<{ arguments: Arguments }>) {
+}: LaunchProps<{ arguments: Arguments.Iv }>) {
   const [query, setQuery] = useState(args.initialQuery ?? "");
   const [specUsage, setSpecUsage] = useState<Record<string, number>>({});
   const [favoriteSpecs, setFavoriteSpecs] = useState<SpecEntry[]>([]);

@@ -44,7 +44,7 @@ describe("buildStatPriorityUrl()", () => {
 
   it("builds a healer stat priority URL", () => {
     expect(buildStatPriorityUrl("holy-priest", "healer")).toBe(
-      "https://www.icy-veins.com/wow/holy-priest-pve-healer-stat-priority",
+      "https://www.icy-veins.com/wow/holy-priest-pve-healing-stat-priority",
     );
   });
 

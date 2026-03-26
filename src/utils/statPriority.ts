@@ -14,7 +14,7 @@ export function buildStatPriorityUrl(
   const roleMap: Record<string, string> = {
     dps: "dps",
     tank: "tank",
-    healer: "healer",
+    healer: "healing",
   };
   const role = roleMap[pveRole] ?? "dps";
   return `https://www.icy-veins.com/wow/${specSlug}-pve-${role}-stat-priority`;
