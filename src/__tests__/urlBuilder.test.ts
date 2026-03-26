@@ -9,12 +9,22 @@ const shadowPriest: SpecEntry = {
 };
 
 function makePveInput(urlSuffix: string, special?: boolean): ParsedInput {
-  const page: PageEntry = { urlSuffix, aliases: [], special, displayTitle: urlSuffix };
+  const page: PageEntry = {
+    urlSuffix,
+    aliases: [],
+    special,
+    displayTitle: urlSuffix,
+  };
   return { spec: shadowPriest, mode: "pve", page };
 }
 
 function makePvpInput(urlSuffix: string, special?: boolean): ParsedInput {
-  const page: PageEntry = { urlSuffix, aliases: [], special, displayTitle: urlSuffix };
+  const page: PageEntry = {
+    urlSuffix,
+    aliases: [],
+    special,
+    displayTitle: urlSuffix,
+  };
   return { spec: shadowPriest, mode: "pvp", page };
 }
 
