@@ -266,7 +266,7 @@ function renderGrid(
 
       return [recentSection, favSection, classSection].filter(
         Boolean,
-      ) as Element[];
+      ) as ReactNode[];
     }
     case "specs":
       return (
