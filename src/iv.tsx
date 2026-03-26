@@ -1,12 +1,15 @@
 import {
   Action,
   ActionPanel,
+  Clipboard,
   Grid,
   Icon,
   LaunchProps,
   open,
   openExtensionPreferences,
   showHUD,
+  showToast,
+  Toast,
 } from "@raycast/api";
 import {
   useCallback,
@@ -510,6 +513,19 @@ function PageItem({
       actions={
         <ActionPanel>
           <Action title={`Open ${title}`} onAction={handleOpen} />
+          <Action
+            title="Copy Link"
+            icon={Icon.Link}
+            shortcut={{ modifiers: ["cmd"], key: "c" }}
+            onAction={async () => {
+              await Clipboard.copy(url);
+              await showToast({
+                style: Toast.Style.Success,
+                title: "Link Copied",
+                message: entryTitle,
+              });
+            }}
+          />
           <Action title="Fill Query" onAction={() => setQuery(query)} />
           <ManageMacrosAction />
         </ActionPanel>
