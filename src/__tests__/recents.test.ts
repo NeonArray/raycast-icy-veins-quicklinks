@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import type { RecentEntry } from "../types";
 
 // ---------------------------------------------------------------------------
@@ -17,7 +17,12 @@ vi.mock("@raycast/api", () => ({
 }));
 
 // Import after mocking so the module picks up the mock
-const { getRecents, addRecent } = await import("../utils/recents");
+let getRecents: (typeof import("../utils/recents"))["getRecents"];
+let addRecent: (typeof import("../utils/recents"))["addRecent"];
+
+beforeAll(async () => {
+  ({ getRecents, addRecent } = await import("../utils/recents"));
+});
 
 const STORAGE_KEY = "recent-guides";
 

@@ -8,7 +8,7 @@ import {
   openExtensionPreferences,
   showHUD,
 } from "@raycast/api";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { addRecent, getRecents } from "./utils/recents";
 import { getFavoriteSpecs, toggleFavorite } from "./utils/favorites";
 import { parseMacros, expandMacro } from "./utils/macros";
@@ -181,7 +181,7 @@ function renderGrid(
   refreshFavorites: () => void,
   recents: RecentEntry[],
   setRecents: (entries: RecentEntry[]) => void,
-): Element | Element[] {
+): ReactNode {
   switch (state.kind) {
     case "classes": {
       const recentSection =

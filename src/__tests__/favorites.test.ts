@@ -18,7 +18,7 @@ import {
   toggleFavorite,
 } from "../utils/favorites";
 
-const mockStorage = LocalStorage as {
+const mockStorage = LocalStorage as unknown as {
   getItem: ReturnType<typeof vi.fn>;
   setItem: ReturnType<typeof vi.fn>;
 };

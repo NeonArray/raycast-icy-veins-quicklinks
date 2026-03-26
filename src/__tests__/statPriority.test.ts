@@ -17,11 +17,11 @@ import {
   fetchStatPriority,
 } from "../utils/statPriority";
 
-const mockLocalStorage = LocalStorage as {
+const mockLocalStorage = LocalStorage as unknown as {
   getItem: ReturnType<typeof vi.fn>;
   setItem: ReturnType<typeof vi.fn>;
 };
-const mockClipboard = Clipboard as { copy: ReturnType<typeof vi.fn> };
+const mockClipboard = Clipboard as unknown as { copy: ReturnType<typeof vi.fn> };
 
 // ---------------------------------------------------------------------------
 // buildStatPriorityUrl
