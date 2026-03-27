@@ -25,7 +25,7 @@ const roles = [...specsSrc.matchAll(/pveRole:\s*"([^"]+)"/g)].map((m) => m[1]);
 const specRoles = new Map();
 slugs.forEach((slug, i) => specRoles.set(slug, roles[i]));
 
-const ICON_SIZE = 1024;
+const ICON_SIZE = 600;
 const BADGE_SIZE = Math.round(ICON_SIZE * 0.25);
 const MARGIN = 25;
 
